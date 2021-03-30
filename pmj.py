@@ -69,11 +69,15 @@ def early_join_init_run(sorted_r, sorted_s, key_R, key_S):
         
         if len(sorted_s) == 0 or (len(sorted_r) > 0 and r[key_R] <= s[key_S]):
             R_M.insert(r)
-            RES.append(S_M.query(r, key_R))
+            query_res = S_M.query(r, key_R)
+            if len(query_res) > 0:
+                RES.append(query_res)
             sorted_r = sorted_r[1:]
         else:
             S_M.insert(s)
-            RES.append(R_M.query(s, key_S))
+            query_res = R_M.query(s, key_S)
+            if len(query_res) > 0:
+                RES.append(query_res)
             sorted_s = sorted_s[1:]
 
     return RES
@@ -104,12 +108,16 @@ def early_join_merged_run(q, sorted_r, sorted_s, key_R, key_S):
         
         if s_j == -1 or (r_i > -1 and r[key_R] <= s[key_S]):
             R_M.insert(r)
-            RES.append(S_M.query(r, key_R, r_i))
+            query_res = S_M.query(r, key_R, r_i)
+            if len(query_res) > 0:
+                RES.append(query_res)
             R_m = R_m[:r_i] + R_m[r_i + 1:]
             sorted_r.append(r)
         else:
             S_M.insert(s)
-            RES.append(R_M.query(s, key_S, s_j))
+            query_res = R_M.query(s, key_S, s_j)
+            if len(query_res) > 0:
+                RES.append(query_res)
             S_m = S_m[:s_j] + S_m[s_j + 1:]
             sorted_s.append(s)
 
@@ -163,7 +171,7 @@ def pmj(R, S, mem_size, max_fan_in, key_R, key_S):
 
         Q.append((sorted_r, sorted_s))
 
-    print(np.array(res))
+    print(res)
 
 R = loaddata("r.txt")
 # print(R)
