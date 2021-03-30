@@ -1,7 +1,7 @@
 import numpy as np
 
 def loaddata(filename):
-    return np.genfromtxt(filename,dtype=str)
+    return np.genfromtxt(filename,dtype=str).tolist()
 
 def writefile(filename, data):
     r_file = open(filename, "w")
@@ -12,20 +12,15 @@ def quicksort(arr, key):
     if len(arr) < 2:
         return arr
         
-    pivot = arr[0, key]
+    pivot = arr[0][key]
     pivot_list = arr[0]
-    left = np.array([x for x in arr if x[key] < pivot])
-    right = np.array([x for x in arr[1:] if x[key] >= pivot])
+    left = [x for x in arr if x[key] < pivot]
+    right = [x for x in arr[1:] if x[key] >= pivot]
     
     sorted_left = quicksort(left, key)
     sorted_right = quicksort(right, key)
     
-    if sorted_right.size == 0:
-        return np.concatenate((sorted_left, [pivot_list]))
-    elif sorted_left.size == 0:
-        return np.concatenate(([pivot_list], sorted_right))
-    else:
-        return np.concatenate((sorted_left, [pivot_list], sorted_right))
+    return sorted_left + [pivot_list] + sorted_right
 
 class SweepArea:
     def __init__(self, x, key):
