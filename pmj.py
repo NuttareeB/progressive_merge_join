@@ -29,11 +29,55 @@ def quicksort(arr, key):
     else:
         return np.concatenate((sorted_left, [pivot_list], sorted_right))
 
+class SweepArea:
+    def __init__(self, x, key):
+        self.X = x
+        self.key = key
 
-def early_join_init_run(sorted_r, sorted_s):
-    return (sorted_r, sorted_s)
+    def insert(self, v):
+        self.X = self.X.append(v)
+    
+    def query(self, v, v_key):
+        # remove elements that less than v
+        i = 0
+        while self.X[i][self.key] < v[v_key]:
+            self.X = self.X[1:]
+            i += 1
+        
+        result = []
 
-def early_join_merged_run(sorted_r, sorted_s):
+        i = 0
+        while self.X[i][self.key] == v[v_key]:
+            result.append((self.X[i], v))
+        
+        return result
+
+
+def early_join_init_run(sorted_r, sorted_s, key_R, key_S):
+    RES = []
+    R_m = SweepArea([], key_R)
+    S_m = SweepArea([], key_S)
+    
+    while len(sorted_r) > 0 or len(sorted_s) > 0:
+        r = []
+        s = []
+        if len(sorted_r) > 0:
+            r = sorted_r[0]
+        if len(sorted_s) > 0:
+            s = sorted_s[0]
+        
+        if len(sorted_s) == 0 or (len(sorted_r) > 0 and r[key_R] <= s[key_S]):
+            R_m.insert(r)
+            RES.append(S_m.query(r, key_R))
+            sorted_r = sorted_r[1:]
+        else:
+            S_m.insert(s)
+            RES.append(R_m.query(s, key_S))
+            sorted_s = sorted_s[1:]
+
+    return RES
+
+def early_join_merged_run(q, sorted_r, sorted_s, key_R, key_S):
     return (sorted_r, sorted_s)
 
 """
@@ -60,7 +104,7 @@ def pmj(R, S, mem_size, max_fan_in, key_R, key_S):
         sorted_r = quicksort(r, key_R)
         sorted_s = quicksort(s, key_S)
 
-        res.append(early_join_init_run(sorted_r, sorted_s))
+        res.append(early_join_init_run(sorted_r, sorted_s, key_R, key_S))
 
         #write sorted_r and sorted_s to external memory
         writefile("sorted_r.txt", sorted_r)
@@ -76,7 +120,7 @@ def pmj(R, S, mem_size, max_fan_in, key_R, key_S):
         sorted_r = []
         sorted_s = []
         
-        res.append(early_join_merged_run(sorted_r, sorted_s))
+        res.append(early_join_merged_run(q, sorted_r, sorted_s, key_R, key_S))
         
         #write sorted_r and sorted_s to external memory
         writefile("sorted_r.txt", sorted_r)
